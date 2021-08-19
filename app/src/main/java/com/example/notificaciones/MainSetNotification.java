@@ -23,7 +23,7 @@ import java.util.UUID;
 
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainSetNotification extends AppCompatActivity {
 
     private Button btnGuardar, btnEliminar, selefecha, selehora;
     private TextView tvfecha, tvhora;
@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main_setnotifications);
 
         selefecha = findViewById(R.id.btn_selefecha);
         selehora = findViewById(R.id.btn_selehora);
@@ -92,13 +92,14 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onClick (View view){
         String tag1 = generateKey();
+
         Long Alerttime = calendar.getTimeInMillis() - System.currentTimeMillis();
         String alerta = String.valueOf(Alerttime);
-        Toast.makeText(MainActivity.this, alerta , Toast.LENGTH_SHORT).show();
+        Toast.makeText(MainSetNotification.this, alerta , Toast.LENGTH_SHORT).show();
         int random = (int) (Math.random() * 50 + 1);
         Data data = GuardarData("Notificacion Alerta Tarea", "Este es el detalle", random);
         Workmanagernoti.GuardarNoti(Alerttime, data, "tag1");
-        Toast.makeText(MainActivity.this, "Alarma Guardada.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(MainSetNotification.this, "Alarma Guardada.", Toast.LENGTH_SHORT).show();
     }
     });
     btnEliminar = findViewById(R.id.btn_eliminar);
@@ -108,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onClick (View view){
         EliminarNoti("tag1");
-        Toast.makeText(MainActivity.this, "Alarma Eliminada.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(MainSetNotification.this, "Alarma Eliminada.", Toast.LENGTH_SHORT).show();
     }
     });
 
@@ -121,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void EliminarNoti(String tag) {
         WorkManager.getInstance(this).cancelAllWorkByTag(tag);
-        Toast.makeText(MainActivity.this, "Alarma Eliminada!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(MainSetNotification.this, "Alarma Eliminada!", Toast.LENGTH_SHORT).show();
     }
 
 
