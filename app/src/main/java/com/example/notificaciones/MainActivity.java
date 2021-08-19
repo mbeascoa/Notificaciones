@@ -93,6 +93,8 @@ public class MainActivity extends AppCompatActivity {
         public void onClick (View view){
         String tag1 = generateKey();
         Long Alerttime = calendar.getTimeInMillis() - System.currentTimeMillis();
+        String alerta = String.valueOf(Alerttime);
+        Toast.makeText(MainActivity.this, alerta , Toast.LENGTH_SHORT).show();
         int random = (int) (Math.random() * 50 + 1);
         Data data = GuardarData("Notificacion Alerta Tarea", "Este es el detalle", random);
         Workmanagernoti.GuardarNoti(Alerttime, data, "tag1");
@@ -123,11 +125,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private Data GuardarData(String titulo, String detalle, int id_noti) {
+    private Data GuardarData(String titulo, String detalle, int idnoti) {
         return new Data.Builder()
                 .putString("titulo", titulo)
                 .putString("detalle", detalle)
-                .putInt("id_noti", id_noti).build();
+                .putInt("idnoti", idnoti).build();
     }
 
 }
