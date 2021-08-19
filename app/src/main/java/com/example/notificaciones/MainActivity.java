@@ -1,131 +1,133 @@
 package com.example.notificaciones;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
 
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.graphics.Color;
-import android.os.Build;
+import androidx.work.Data;
+import androidx.work.WorkManager;
+
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
+
 import android.os.Bundle;
-import android.text.format.DateFormat;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.DatePicker;
+
+import android.widget.TextView;
+import android.widget.TimePicker;
+import android.widget.Toast;
 
 import java.util.Calendar;
-import java.util.Date;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.UUID;
 
-import static java.time.temporal.TemporalAdjusters.*;
-import static java.time.DayOfWeek.*;
 
-import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
-import com.wdullaer.materialdatetimepicker.time.RadialPickerLayout;
-import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 
 public class MainActivity extends AppCompatActivity {
-    private Button btnNotification, btnEliminar;
-    private EditText mDateEditText, mTimeEditText
+
+    private Button btnGuardar, btnEliminar, selefecha, selehora;
+    private TextView tvfecha, tvhora;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // filed that places the Date as string, from mUserReminderDate
-        mDateEditText = (EditText) dialogView.findViewById(R.id.newTodoDateEditText);
+        selefecha = findViewById(R.id.btn_selefecha);
+        selehora = findViewById(R.id.btn_selehora);
+        tvfecha = findViewById(R.id.tv_fecha);
+        tvhora = findViewById(R.id.tv_hora);
 
-        //Listener to Date picker
-        mDateEditText.setOnClickListener(new View.OnClickListener() {
+        Calendar actual = Calendar.getInstance();
+        Calendar calendar = Calendar.getInstance();
+
+        selefecha.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                int anio = actual.get(Calendar.YEAR);
+                int mes = actual.get(Calendar.MONTH);
+                int dia = actual.get(Calendar.DAY_OF_MONTH);
 
-                Date date;
-
-
-                date = new Date();
-
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTime(date);
-                int year = calendar.get(Calendar.YEAR);
-                int month = calendar.get(Calendar.MONTH);
-                int day = calendar.get(Calendar.DAY_OF_MONTH);
-
-
-                DatePickerDialog datePickerDialog = DatePickerDialog.newInstance(DialogNewNote.this, year, month, day);
-                datePickerDialog.show(getActivity().getFragmentManager(), "DateFragment");
+                DatePickerDialog datePickerDialog = new DatePickerDialog(v.getContext(), new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker view, int y, int m, int d) {
+                        calendar.set(Calendar.DAY_OF_MONTH, d);
+                        calendar.set(Calendar.MONTH, m);
+                        calendar.set(Calendar.YEAR, y);
+                        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+                        String strDate = format.format(calendar.getTime());
+                        tvfecha.setText(strDate);
+                    }
+                }, anio, mes, dia);
+                datePickerDialog.show();
             }
         });
 
-        //field where we put the time from mUserReminderDate
-        mTimeEditText = (EditText) dialogView.findViewById(R.id.newTodoTimeEditText);
-
-        // listener to Edit Time
-        mTimeEditText.setOnClickListener(new View.OnClickListener() {
+        selehora.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                int hora = actual.get(Calendar.HOUR_OF_DAY);
+                int minutos = actual.get(Calendar.MINUTE);
 
-                Date date;
-                hideKeyboard(mToDoTextBodyTitle);
-                hideKeyboard(mToDoTextBodyDescription);
-                date = new Date();
 
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTime(date);
-                int hour = calendar.get(Calendar.HOUR_OF_DAY);
-                int minute = calendar.get(Calendar.MINUTE);
+                TimePickerDialog timePickerDialog = new TimePickerDialog(v.getContext(), new TimePickerDialog.OnTimeSetListener() {
 
-                TimePickerDialog timePickerDialog = TimePickerDialog.newInstance(DialogNewNote.this, hour, minute, DateFormat.is24HourFormat(getContext()));
-                timePickerDialog.show(getActivity().getFragmentManager(), "TimeFragment");
+                    @Override
+                    public void onTimeSet(TimePicker view, int h, int m) {
+                        calendar.set(Calendar.DAY_OF_MONTH, h);
+                        calendar.set(Calendar.MONTH, m);
+                        tvhora.setText(String.format("%02d:%02d", h, m));
+                    }
+                }, hora, minutos,true);
+                timePickerDialog.show();
             }
         });
 
 
-        btnNotification = findViewById(R.id.btn_guardar);
+    btnGuardar = findViewById(R.id.btn_guardar);
 
-        btnNotification.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String tag1 = generateKey();
-                Long Alerttime = calendar.getTimeInMillis() - System.currenTimeMillis();
-                int random = (int) (Math.random() * 50 + 1);
-                Data data = GuardarData("Notificacion Alerta Tarea", "Este es el detalle", random);
-                Workmanagernoti.GuardarNoti(Alerttime, data, "tag1");
-                Toast.makeText(MainActivity.this, "Alarma Guardada.", Toast.LENGTH_SHORT).show();
-            }
-        });
-        btnEliminar = findViewById(R.id.btn_eliminar);
-        btnEliminar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                EliminarNoti("tag1");
-                Toast.makeText(MainActivity.this, "Alarma Eliminada.", Toast.LENGTH_SHORT).show();
-            }
-        });
+        btnGuardar.setOnClickListener(new View.OnClickListener()
 
-        private void EliminarNoti (String tag){
-            WorkManager.getInstance(this).cancelAllWorkByTag(tag);
-            Toast.makeText(MainActivity.this, "Alarma Eliminada!", Toast.LENGTH_SHORT).show();
-        }
-        private String generatekey () {
-            return UUID.randomUUID().toString();
-        }
+    {
+        @Override
+        public void onClick (View view){
+        String tag1 = generateKey();
+        Long Alerttime = calendar.getTimeInMillis() - System.currentTimeMillis();
+        int random = (int) (Math.random() * 50 + 1);
+        Data data = GuardarData("Notificacion Alerta Tarea", "Este es el detalle", random);
+        Workmanagernoti.GuardarNoti(Alerttime, data, "tag1");
+        Toast.makeText(MainActivity.this, "Alarma Guardada.", Toast.LENGTH_SHORT).show();
+    }
+    });
+    btnEliminar = findViewById(R.id.btn_eliminar);
+        btnEliminar.setOnClickListener(new View.OnClickListener()
 
+    {
+        @Override
+        public void onClick (View view){
+        EliminarNoti("tag1");
+        Toast.makeText(MainActivity.this, "Alarma Eliminada.", Toast.LENGTH_SHORT).show();
+    }
+    });
 
-        private Data GuardarData (String titulo, String detalle,interface id_noti){
-            return new Data.Builder()
-                    .putString("titulo", titulo)
-                    .putString("detalle", detalle)
-                    .putInt("id_noti", id_noti).build();
-        }
+}
+
+    private String generateKey() {
+        return UUID.randomUUID().toString();
+    }
 
 
+    private void EliminarNoti(String tag) {
+        WorkManager.getInstance(this).cancelAllWorkByTag(tag);
+        Toast.makeText(MainActivity.this, "Alarma Eliminada!", Toast.LENGTH_SHORT).show();
+    }
 
+
+    private Data GuardarData(String titulo, String detalle, int id_noti) {
+        return new Data.Builder()
+                .putString("titulo", titulo)
+                .putString("detalle", detalle)
+                .putInt("id_noti", id_noti).build();
     }
 
 }
